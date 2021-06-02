@@ -61,6 +61,11 @@ type DebtSnapshot @entity {
   # the following will be null before multicurrency (v2) release
   collateral: BigInt
   debtBalanceOf: BigInt
+  globalDebtValue: BigInt
+  totalSNX: BigInt
+  transferableSNX: BigInt
+  lockedSNX: BigInt
+  stakedSNX: BigInt
 }
 
 type SynthHolder @entity {

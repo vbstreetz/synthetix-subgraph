@@ -7,13 +7,17 @@ import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
-import { sUSD32, sUSD4 } from './common';
+import { sUSD32, sUSD4, SNX32 } from './common';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
+
+import { SynthUtil } from '../generated/SynthsUSD/SynthUtil';
+import { SystemSettings } from '../generated/SynthsUSD/SystemSettings';
+import { ExchangeRates } from '../generated/SynthsUSD/ExchangeRates';
 
 import {
   Synth,
@@ -264,8 +268,62 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   if (event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     entity.balanceOf = synthetix.balanceOf(account);
-    entity.collateral = synthetix.collateral(account);
+    let collateral = synthetix.collateral(account);
+    entity.collateral = collateral;
     entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
+
+    entity.globalDebtValue = BigInt.fromI32(0);
+    // Note: hard coding the latest addresses
+    let synthUtilAddress = '0x81Aee4EA48f678E172640fB5813cf7A96AFaF6C3';
+    let systemSettingsAddress = '0xD3C8d372bFCd36c2B452639a7ED6ef7dbFDC56F8';
+    let synthetixStateAddress = '0x4b9Ca5607f1fF8019c1C6A3c2f0CC8de622D5B82';
+    let exchangeRatesAddress = '0xd69b189020EF614796578AfE4d10378c5e7e1138';
+
+    let synthUtil = SynthUtil.bind(Address.fromHexString(synthUtilAddress) as Address);
+    let systemSettings = SystemSettings.bind(Address.fromHexString(systemSettingsAddress) as Address);
+    let synthetixState = SynthetixState.bind(Address.fromHexString(synthetixStateAddress) as Address);
+    let exchangeRates = ExchangeRates.bind(Address.fromHexString(exchangeRatesAddress) as Address);
+
+    let synthsTotalSupplies = synthUtil.synthsTotalSupplies();
+
+    let totalIssuedSynths = BigInt.fromI32(0);
+    let currenciesUSDValues = synthsTotalSupplies.value2;
+    let currenciesSupply = synthsTotalSupplies.value1;
+    for (let i = 0; i < currenciesUSDValues.length; i++) {
+      entity.globalDebtValue = entity.globalDebtValue.plus(currenciesUSDValues[i]);
+      totalIssuedSynths = totalIssuedSynths.plus(currenciesSupply[i]);
+    }
+
+    let issuanceRatio = systemSettings.issuanceRatio();
+
+    let lastDebtLedgerEntry = synthetixState.lastDebtLedgerEntry();
+
+    let issuanceData = synthetixState.issuanceData(account);
+
+    let debtEntryAtIndex = BigInt.fromI32(0);
+    let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
+    if (!debtLedgerTry.reverted) {
+      debtEntryAtIndex = debtLedgerTry.value;
+    }
+    let initialDebtOwnership = issuanceData.value0;
+
+    let debtBalance = totalIssuedSynths
+      .times(lastDebtLedgerEntry)
+      .div(debtEntryAtIndex)
+      .times(initialDebtOwnership);
+    let usdToSnxPrice = exchangeRates.rateForCurrency(SNX32);
+    let collateralRatio = debtBalance.div(collateral).div(usdToSnxPrice);
+
+    let transferableSNX = synthetix.transferableSynthetix(account);
+    entity.transferableSNX = transferableSNX;
+    entity.stakedSNX = collateral;
+    let ratio = collateralRatio.div(issuanceRatio);
+    entity.lockedSNX = entity.stakedSNX;
+    if (ratio.lt(BigInt.fromI32(1))) {
+      entity.lockedSNX = collateral.times(ratio);
+    }
+    entity.totalSNX = collateral.plus(transferableSNX);
+
     // Use bytes4
   } else if (event.block.number > v101UpgradeBlock) {
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
@@ -274,13 +332,25 @@ function trackDebtSnapshot(event: ethereum.Event): void {
       entity.balanceOf = balanceOfTry.value;
     }
     let collateralTry = synthetix.try_collateral(account);
+    let collateral = BigInt.fromI32(0);
     if (!collateralTry.reverted) {
       entity.collateral = collateralTry.value;
+      collateral = collateralTry.value;
     }
     let debtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD4);
     if (!debtBalanceOfTry.reverted) {
       entity.debtBalanceOf = debtBalanceOfTry.value;
     }
+    entity.globalDebtValue = BigInt.fromI32(0);
+    let transferableSNXTry = synthetix.try_transferableSynthetix(account);
+    let transferableSNX = BigInt.fromI32(0);
+    if (!transferableSNXTry.reverted) {
+      entity.transferableSNX = transferableSNXTry.value;
+      transferableSNX = transferableSNXTry.value;
+    }
+    entity.lockedSNX = BigInt.fromI32(0);
+    entity.stakedSNX = collateral;
+    entity.totalSNX = collateral.plus(transferableSNX);
   } else {
     return;
   }

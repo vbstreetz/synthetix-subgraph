@@ -137,6 +137,12 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
+        - name: SynthUtil
+          file: ../abis/SynthUtil.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: SystemSettings
+          file: ../abis/SystemSettings.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -175,6 +181,12 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
+        - name: SynthUtil
+          file: ../abis/SynthUtil.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: SystemSettings
+          file: ../abis/SystemSettings.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -213,6 +225,12 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
+        - name: SynthUtil
+          file: ../abis/SynthUtil.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: SystemSettings
+          file: ../abis/SystemSettings.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -251,6 +269,12 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
+        - name: SynthUtil
+          file: ../abis/SynthUtil.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: SystemSettings
+          file: ../abis/SystemSettings.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -289,6 +313,12 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
+        - name: SynthUtil
+          file: ../abis/SynthUtil.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: SystemSettings
+          file: ../abis/SystemSettings.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -326,6 +356,12 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
+        - name: SynthUtil
+          file: ../abis/SynthUtil.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: SystemSettings
+          file: ../abis/SystemSettings.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth

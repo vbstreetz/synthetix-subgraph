@@ -38,7 +38,7 @@
     "build:grantsdao": "graph build subgraphs/synthetix-grantsdao.yaml",
     "build:liquidations": "graph build subgraphs/synthetix-liquidations.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
-    "deploy:snx": "npm run deploy -- synthetixio-team/synthetix subgraphs/synthetix.yaml",
+    "deploy:snx": "npm run deploy -- vbstreetz/synthetix subgraphs/synthetix.yaml",
     "deploy:chainlink": "npm run deploy -- synthetixio-team/synthetix-chainlink subgraphs/synthetix-chainlink.yaml",
     "deploy:rates": "npm run deploy -- synthetixio-team/synthetix-rates subgraphs/synthetix-rates.yaml",
     "deploy:depot": "npm run deploy -- synthetixio-team/synthetix-depot subgraphs/synthetix-depot.yaml",
